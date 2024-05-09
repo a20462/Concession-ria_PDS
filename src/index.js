@@ -2,13 +2,14 @@ const express = require("express")
 const mongoose = require('mongoose');
 const path = require("path")
 
+
 const app = express()
 app.use(express.json())
 const port = 3000
 
 //DB = dados a preencher
 //Carros
-const Car = mongoose.model('Car', {
+/*const Car = mongoose.model('Car', {
     marca: String,
     modelo: String,
     kms: Number,
@@ -19,22 +20,41 @@ const Car = mongoose.model('Car', {
     garantia: String,
     preco: Number,
     cor: String,
-    });
+    });*/
+    const Car = mongoose.model('Car', {
+        marca: String,
+        modelo: String,
+        kms: Number,
+        combustivel: String,
+        ano: Number,
+        caixa: String,
+        img: String,
+        garantia: String,
+        preco: Number,
+        cor: String,
+    }, 'cars'); // Nome da coleção é 'cars'
 
 //Peças
-const Peca = mongoose.model('Peca', {
-    tipo: String,
+/*const Peca = mongoose.model('Peca', {
+    modelo: String,
     preco: Number,
     descricao: String,
-})
+})*/
+//Peças
+const Peca = mongoose.model('Peca', {
+    modelo: String,
+    preco: Number,
+    descricao: String,
+}, 'pecas'); // Nome da coleção é 'pecas'
 
-//Listagem db = lista todos os carros 
-app.get("/", async (req, res) => {
+
+//Listagem db
+app.get("/cars", async (req, res) => {
     const cars = await Car.find()
     return res.send(cars)
   })
 
-  app.get("/", async (req, res) => {
+  app.get("/pecas", async (req, res) => {
     const pecas = await Peca.find()
     return res.send(pecas)
   })
@@ -47,8 +67,8 @@ app.delete("/:id", async(req, res) => {
 })
 
 //Peça
-app.delete("/:id", async(req, res) => {
-    const peca = await Car.findByIdAndDelete(req.params.id)
+app.delete("/pecas/:id", async(req, res) => {
+    const peca = await Peca.findByIdAndDelete(req.params.id)
     return res.send(peca)
 })
 
@@ -74,9 +94,9 @@ app.put("/:id", async(req, res) => {
 })
 
 //Pecas
-app.put("/:id", async(req, res) => {
+app.put("/pecas/:id", async(req, res) => {
     const peca = await Peca.findByIdAndUpdate(req.params.id, {
-        tipo: req.body.tipo,
+        modelo: req.body.modelo,
         preco: req.body.preco,
         descricao: req.body.descricao,
     }, {
@@ -85,8 +105,9 @@ app.put("/:id", async(req, res) => {
     return res.send(peca)
 })
 
+//Criar - DB
 //Carro
-app.post("/", async (req, res) => {
+app.post("/cars", async (req, res) => {
     const car = new Car({
         marca: req.body.marca,
         modelo: req.body.modelo,
@@ -103,9 +124,8 @@ app.post("/", async (req, res) => {
     res.send(car)
 })
 
-//Criar - DB
 //Peca
-app.post("/", async (req, res) => {
+app.post("/pecas", async (req, res) => {
     const peca = new Peca({
         tipo: req.body.tipo,
         preco: req.body.preco,
@@ -114,6 +134,21 @@ app.post("/", async (req, res) => {
     await peca.save()
     res.send(peca)
 })
+// Rota para adicionar uma peça
+/*app.post("/pecas", async (req, res) => {
+    const peca = new Peca({
+        modelo: req.body.modelo,
+        preco: req.body.preco,
+        descricao: req.body.descricao,
+    });
+
+    try {
+        const novaPeca = await peca.save();
+        res.send(novaPeca);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+})*/
 
 //Conexão para MongoDB
 app.listen(port, () => {
