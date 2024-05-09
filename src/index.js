@@ -61,7 +61,7 @@ app.get("/cars", async (req, res) => {
 
 //Apagar db por id (:id)
 //Carro
-app.delete("/:id", async(req, res) => {
+app.delete("/cars/:id", async(req, res) => {
     const car = await Car.findByIdAndDelete(req.params.id)
     return res.send(car)
 })
@@ -75,7 +75,7 @@ app.delete("/pecas/:id", async(req, res) => {
 
 //Update db por id (:id)
 //Carros
-app.put("/:id", async(req, res) => {
+app.put("/cars/:id", async(req, res) => {
     const car = await Car.findByIdAndUpdate(req.params.id, {
         marca: req.body.marca,
         modelo: req.body.modelo,
