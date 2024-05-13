@@ -2,14 +2,14 @@ const express = require("express")
 const mongoose = require('mongoose');
 const path = require("path")
 
-
 const app = express()
 app.use(express.json())
 const port = 3000
 
-//DB = dados a preencher
+//Funções (DB)
 //Carros
-/*const Car = mongoose.model('Car', {
+
+const Car = mongoose.model('Car', {
     marca: String,
     modelo: String,
     kms: Number,
@@ -18,48 +18,48 @@ const port = 3000
     caixa: String,
     img: String,
     garantia: String,
-    preco: Number,
+    preco: String,
     cor: String,
-    });*/
-    const Car = mongoose.model('Car', {
-        marca: String,
-        modelo: String,
-        kms: Number,
-        combustivel: String,
-        ano: Number,
-        caixa: String,
-        img: String,
-        garantia: String,
-        preco: Number,
-        cor: String,
-    }, 'cars'); // Nome da coleção é 'cars'
+}, 'cars'); 
 
-//Peças
-/*const Peca = mongoose.model('Peca', {
-    modelo: String,
-    preco: Number,
-    descricao: String,
-})*/
 //Peças
 const Peca = mongoose.model('Peca', {
-    modelo: String,
-    preco: Number,
-    descricao: String,
-}, 'pecas'); // Nome da coleção é 'pecas'
+    modelo: String, // Mola
+    preco: String, // 50€ 
+    descricao: String, // A preencher (Peça para marcas: X, Y e Z)
+}, 'pecas'); 
 
+//Serviço
+const Servico = mongoose.model('Servico', {
+    tipo: String, // Limpeza / troca de oleo / manutenção completa etc
+    nome: String, // João Silva
+    email: String, // JSilva@gmail.com
+    telemovel: Number, // 911222333
+    estado: String, // Concluido / Pendente
+    modelo: String, // 2020 Tesla Model S Performance Edition
+    conta: String, // 45€
+    data: String, // 18/02/2024
+}, 'servicos'); 
 
-//Listagem db
+/*--------------------------------------------------------------------------------------------- GET - LISTAGEM --------------------------------------------------------------------------------------------------------------------------*/
+//GET - Listagem
 app.get("/cars", async (req, res) => {
     const cars = await Car.find()
     return res.send(cars)
   })
 
-  app.get("/pecas", async (req, res) => {
+app.get("/pecas", async (req, res) => {
     const pecas = await Peca.find()
     return res.send(pecas)
   })
 
-//Apagar db por id (:id)
+app.get("/servicos", async (req, res) => {
+    const servicos = await Servico.find()
+    return res.send(servicos)
+  })
+
+/*--------------------------------------------------------------------------------------------- DEL - APAGAR --------------------------------------------------------------------------------------------------------------------------*/
+//DEL - Apagar
 //Carro
 app.delete("/cars/:id", async(req, res) => {
     const car = await Car.findByIdAndDelete(req.params.id)
@@ -71,10 +71,15 @@ app.delete("/pecas/:id", async(req, res) => {
     const peca = await Peca.findByIdAndDelete(req.params.id)
     return res.send(peca)
 })
+//Serviço
+app.delete("/servicos/:id", async(req, res) => {
+    const servico = await Servico.findByIdAndDelete(req.params.id)
+    return res.send(servico)
+})
 
-
-//Update db por id (:id)
-//Carros
+/*--------------------------------------------------------------------------------------------- PUT - ATUALIZAR --------------------------------------------------------------------------------------------------------------------------*/
+//PUT - Atualizar
+//Carro
 app.put("/cars/:id", async(req, res) => {
     const car = await Car.findByIdAndUpdate(req.params.id, {
         marca: req.body.marca,
@@ -93,7 +98,7 @@ app.put("/cars/:id", async(req, res) => {
     return res.send(car)
 })
 
-//Pecas
+//Peca
 app.put("/pecas/:id", async(req, res) => {
     const peca = await Peca.findByIdAndUpdate(req.params.id, {
         modelo: req.body.modelo,
@@ -105,7 +110,25 @@ app.put("/pecas/:id", async(req, res) => {
     return res.send(peca)
 })
 
-//Criar - DB
+//Servico
+app.put("/servicos/:id", async(req, res) => {
+    const servico = await Servico.findByIdAndUpdate(req.params.id, {
+        tipo: req.body.tipo,
+        nome: req.body.nome,
+        email: req.body.email,
+        telemovel: req.body.telemovel,
+        estado: req.body.estado,
+        modelo: req.body.modelo,
+        conta: req.body.conta,
+        data: req.body.data,
+    }, {
+        new: true //confirmação
+    })
+    return res.send(servico)
+})
+
+/*--------------------------------------------------------------------------------------------- POST - ADICIONAR --------------------------------------------------------------------------------------------------------------------------*/
+//POST - Adicionar
 //Carro
 app.post("/cars", async (req, res) => {
     const car = new Car({
@@ -134,22 +157,23 @@ app.post("/pecas", async (req, res) => {
     await peca.save()
     res.send(peca)
 })
-// Rota para adicionar uma peça
-/*app.post("/pecas", async (req, res) => {
-    const peca = new Peca({
+
+//Servico
+app.post("/servicos", async (req, res) => {
+    const servico = new Servico({
+        tipo: req.body.tipo,
+        nome: req.body.nome,
+        email: req.body.email,
+        telemovel: req.body.telemovel,
+        estado: req.body.estado,
         modelo: req.body.modelo,
-        preco: req.body.preco,
-        descricao: req.body.descricao,
-    });
-
-    try {
-        const novaPeca = await peca.save();
-        res.send(novaPeca);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-})*/
-
+        conta: req.body.conta,
+        data: req.body.data,
+    })
+    await servico.save()
+    res.send(servico)
+})
+/*--------------------------------------------------------------------------------------------- CONEXÃO - DB --------------------------------------------------------------------------------------------------------------------------*/
 //Conexão para MongoDB
 app.listen(port, () => {
         mongoose.connect('mongodb+srv://NunoCosta99:YBvfZ1kBvhGGZOxF@scfautos-api.ynmru2m.mongodb.net/?retryWrites=true&w=majority&appName=SCFAutos-api')
